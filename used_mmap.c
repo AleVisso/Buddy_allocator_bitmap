@@ -2,10 +2,9 @@
 
 int used_mmap(int memoria) {
     // Dimensione della memoria da allocare (2KB)
-    size_t size = 2048; // 2 * 1024 bytes
 
     // Usare mmap per allocare memoria
-    void *ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    void *ptr = mmap(NULL, memoria, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     
     // Verifica se la mappatura ha avuto successo
     if (ptr == MAP_FAILED) {
@@ -21,7 +20,7 @@ int used_mmap(int memoria) {
     printf("indirizzo di memoria con il testo: %p\n", (char *)ptr);
 
     // Deallocare la memoria
-    if (munmap(ptr, size) == -1) {
+    if (munmap(ptr, memoria) == -1) {
         perror("munmap");
         exit(EXIT_FAILURE);
     }

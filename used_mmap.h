@@ -6,4 +6,4 @@
 #include <string.h>
 #pragma once
 
-int used_mmap(int mmemoria);
+int used_mmap(int memoria);
