@@ -132,7 +132,7 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
     printf("Bit usati per la bitmap: %d\n", num_bits);
     printf("Numero di livelli: %d\n", number_levels);
     printf("Dimensione del minimum bucket: %d\n", min_bucket_size);
-    BitMap_init(&alloc->bitmap, num_bits, bitmap_buf);  //crea bitmap associata al buddy allocator "alloc"
+    BitMap_init(&alloc->bitmap, num_bits, bitmap_buf,bitmap_buf_size);  //crea bitmap associata al buddy allocator "alloc"
     printf("\n<-------------------------------Bitmap appena allocata-------------------------------->\n");
     Bitmap_print(&alloc->bitmap,alloc_buf_size); 
     printf("\n<------------------------------------------------------------------------------------->\n");
