@@ -12,7 +12,7 @@ typedef struct  {
 int BitMap_getBytes(int bits);
 
 // initializes a bitmap on an external array
-void BitMap_init(BitMap* bit_map, int num_bits, char* buffer);
+void BitMap_init(BitMap* bit_map, int num_bits, char* buffer,int bytes);
 
 // sets bit_number in the bitmap and 
 void BitMap_setBit(BitMap* bit_map, int bit_number, int status);
