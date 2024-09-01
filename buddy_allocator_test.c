@@ -5,17 +5,11 @@
 #define BUDDY_LEVELS 6
 #define MEMORY_SIZE 1024
 #define MIN_BUCKET_SIZE (BUFFER_SIZE>>(BUDDY_LEVELS))
- // 100 Kb buffer to handle memory should be enough
 char memory[MEMORY_SIZE];
 BuddyAllocator alloc;
 char buffer[BUFFER_SIZE];
 int buffer_size=BUFFER_SIZE;
 int main(int argc, char** argv) {
-  //1 we see if we have enough memory for the buffers
-  //int req_size=BuddyAllocator_calcSize(BUDDY_LEVELS);
-  //printf("size requested for initialization: %d/BUFFER_SIZE\n", req_size);
-
-  //2 we initialize the allocator
   printf("init... ");
   BuddyAllocator_init(&alloc, BUDDY_LEVELS,
                       buffer,

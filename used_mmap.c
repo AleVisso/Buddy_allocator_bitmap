@@ -1,9 +1,19 @@
 #include "used_mmap.h"
 
-int used_mmap(int memoria) {
-    // Dimensione della memoria da allocare (2KB)
 
+void free_mmap(void *ptr,int memoria){
+   if(munmap(ptr,memoria)==-1){
+      perror("munmap");
+      exit(EXIT_FAILURE);
+}
+printf("Abbiamo liberato la memoria mappata\n");
+ printf("======================================================================ZONA DI MEMORIA LIBERATA===============================================================================\n");
+return ;
+}
+
+void init_mmap(int memoria) {
     // Usare mmap per allocare memoria
+    printf("==========================================================================INIZIO MAPPING MEMORIA====================================================================================\n");
     void *ptr = mmap(NULL, memoria, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     
     // Verifica se la mappatura ha avuto successo
@@ -11,19 +21,20 @@ int used_mmap(int memoria) {
         perror("mmap");
         exit(EXIT_FAILURE);
     }
-
     // Scrittura nella memoria allocata
-    strcpy(ptr, "Ciao, questa è una memoria allocata usando mmap!");
+    printf("Scrivi una parola o una frase con al massimo (%d caratteri):  ",memoria);
+    fgets((char *)ptr, memoria, stdin);
+    ((char *)ptr)[memoria - 1] = '\0';  // Imposta l'ultimo carattere a '\0'
+    printf("Contenuto memoria: %s", (char *)ptr);
+    printf("Indirizzo di memoria con il testo: %p\n", (char *)ptr);
 
-    // Stampa il contenuto della memoria
-    printf("%s\n", (char *)ptr);
-    printf("indirizzo di memoria con il testo: %p\n", (char *)ptr);
-
+ printf("===========================================================================FINE MAPPING MEMORIA===========================================================================\n");
     // Deallocare la memoria
-    if (munmap(ptr, memoria) == -1) {
-        perror("munmap");
-        exit(EXIT_FAILURE);
-    }
-
-    return 0;
+    /*if(munmap(ptr,memoria)==-1){
+      perror("munmap");
+      exit(EXIT_FAILURE);
+}*/
+    free_mmap(ptr,memoria);
+    return;
 }
+

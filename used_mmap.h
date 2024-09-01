@@ -6,4 +6,7 @@
 #include <string.h>
 #pragma once
 
-int used_mmap(int memoria);
+//int free_mmap(void* ptr,int memoria);
+void free_mmap(void* ptr,int memoria);
+//int init_mmap(int memoria);
+void init_mmap(int memoria);

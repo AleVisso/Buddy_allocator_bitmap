@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
-#include <math.h> // for floor and log2
+#include <math.h>
 #include "buddy_allocator.h"
 
 int levelIdx(size_t idx){
@@ -21,81 +21,76 @@ int parentIdx(int idx){ //padre
 
 //ritorna il primo indice del livello 
 int firstIdx(int level){
-  return (1 << level)-1; //2^level -1
+  return (1 << level)-1; 
 }
 
-//ritorna l'offset tra il buddy di indice 'idx' e il primo indice del livello
+
 int startIdx(int idx){
-    return (idx-(firstIdx(levelIdx(idx))));//idx-firstidx(level(idx))
+    return (idx-(firstIdx(levelIdx(idx))));
 }
 
 int count_bits(int alloc_size,BitMap *bit_map){
     int bit_rim_to_print = 0;
     int level = -1; 
-    int total = levelIdx(bit_map->num_bits) - 1;  //numero di livelli totale
+    int total = levelIdx(bit_map->num_bits) - 1; 
     int counter_bits=1;
     alloc_size*=2;
     for (int i = 0; i < bit_map->num_bits; i++){  
-        if (bit_rim_to_print == 0){ //se non rimangono bit da stampare al livello lvl
-            if(level==total){ //se siamo arrivati all'ultimo livello stop
+        if (bit_rim_to_print == 0){
+            if(level==total){ 
               break;
             } 
-            ++level;     //indice del primo elemento del livello: i
-            for (int j = 0; j < (1 << total) - (1 << level); j++){   //stampa degli spazi dopo aver scritto "Livello x:"
-              printf(" "); //stampa spazi
+            ++level;     
+            for (int j = 0; j < (1 << total) - (1 << level); j++){   
+              printf(" "); 
             }
             alloc_size/=2; 
-            bit_rim_to_print = 1 << level; //al prossimo livello dovremo stampare 2^lvl bit
+            bit_rim_to_print = 1 << level; 
         }
-        if (BitMap_bit(bit_map, i)==0){ //se il blocco è 0 lo stampiamo verde
+        if (BitMap_bit(bit_map, i)==0){ 
           counter_bits++;
         }
-        else{   //altrimenti lo stampiamo rosso
+        else{  
           counter_bits+=BitMap_getBytesAfAlloc(alloc_size);
         }
-        bit_rim_to_print--;  //1 bit in meno da stampare
+        bit_rim_to_print--; 
     }
     return counter_bits;
 }
 
-// stampo a schermo l'albero binario della bitmap
 void Bitmap_print(BitMap *bit_map,int alloc_size){
     int bit_rim_to_print = 0;
     int level = -1; 
-    int total = levelIdx(bit_map->num_bits) - 1;  //numero di livelli totale
-    //int count_bit+=1;
+    int total = levelIdx(bit_map->num_bits) - 1;  
     alloc_size*=2;
     for (int i = 0; i < bit_map->num_bits; i++){  
-        if (bit_rim_to_print == 0){ //se non rimangono bit da stampare al livello lvl
-            if(level==total){ //se siamo arrivati all'ultimo livello stop
+        if (bit_rim_to_print == 0){ 
+            if(level==total){ 
               break;
             } 
-            printf("\n\033[93mLivello %d: \t\033[0m", ++level);     //indice del primo elemento del livello: i
-            for (int j = 0; j < (1 << total) - (1 << level); j++){   //stampa degli spazi dopo aver scritto "Livello x:"
-              printf(" "); //stampa spazi
+            printf("\n\033[93mLivello %d: \t\033[0m", ++level);     
+            for (int j = 0; j < (1 << total) - (1 << level); j++){  
+              printf(" "); 
             }
             alloc_size/=2; 
-            bit_rim_to_print = 1 << level; //al prossimo livello dovremo stampare 2^lvl bit
+            bit_rim_to_print = 1 << level; 
         }
-        if (BitMap_bit(bit_map, i)==0){ //se il blocco è 0 lo stampiamo verde
+        if (BitMap_bit(bit_map, i)==0){ 
           printf("\033[32m%d\033[0m ", BitMap_bit(bit_map, i));
-          //count_bit++;
         }
-        else{   //altrimenti lo stampiamo rosso
+        else{ 
           printf("\033[31m%d\033[0m ", BitMap_bit(bit_map, i)*alloc_size);
-          //count_bits+=BitMap_getBytesAfAlloc(alloc_size);
         }
-        bit_rim_to_print--;  //1 bit in meno da stampare
+        bit_rim_to_print--; 
     }
     printf("\n");
-    //return count_bits;
 };
 
 int BuddyAllocator_init(BuddyAllocator* alloc,
                          int number_levels,
-                         char* alloc_buf, // buffer per l'allocator
+                         char* alloc_buf,
                          int alloc_buf_size,
-                         char* bitmap_buf, // buffer per la bitmap
+                         char* bitmap_buf, 
                          int bitmap_buf_size,
                          int min_bucket_size) {
     if (min_bucket_size < 8) {
@@ -103,54 +98,46 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
         return 0;
     }
 
-    if(number_levels>MAX_LEVELS){
+    if(number_levels>Level_SuperMax){
         printf("NUMERO DI LIVELLI MAGGIORE DI 16, INIZIALIZZAZIONE BUDDY ALLOCATOR TERMINATA");
         return 0;
     }
     
-    //Generazione del numero di bit necessari per la bit_map
-    int num_bits = (1 << (number_levels + 1)) - 1 ;  //(2^(num_levels+1))-1
+    int num_bits = (1 << (number_levels + 1)) - 1 ;
   
     assert ("MEMORIA PER LA BITMAP INSUFFICIENTE!" && bitmap_buf_size>=BitMap_getBytes(num_bits));
     
-    //Nel caso non si usi una potenza di 2, verrà utilizzata meno memoria rispetto a quella disponibile
     if (levelIdx(alloc_buf_size) != log2(alloc_buf_size)){
       printf("LA MEMORIA DEDICATA AL BUFFER, OVVERO %d, NON E' UNA POTENZA DI DUE. \nVERRANNO UTILIZZATI SOLO %d BYTES DEI %d FORNITI.\n", alloc_buf_size, min_bucket_size << number_levels, alloc_buf_size);
-      alloc_buf_size = min_bucket_size << number_levels; //la dimensione massima effettiva che può gestire 
-                                                      //alloc_buf_size = min_bucket_size * 2^(num_levels)
+      alloc_buf_size = min_bucket_size << number_levels; 
     }
-
-    // we need room also for level 0
     alloc->number_levels=number_levels;
     alloc->buffer = alloc_buf;
     alloc->buffer_size = alloc_buf_size;
     alloc->min_bucket_size=min_bucket_size;
 
     printf("\n INIZIALIZZAZIONE BUDDY ALLOCATOR. . .\n\nINFO:\n");
-    printf("Memoria gestita: %d bytes\n", alloc_buf_size); // (1<<number_levels)*min_bucket_size  (2^num_levels)*min_buck_size    
+    printf("Memoria gestita: %d bytes\n", alloc_buf_size); //   
     printf("Memoria per la BitMap: %d bytes usati di %d bytes forniti \n", BitMap_getBytes(num_bits), bitmap_buf_size);
     printf("Bit usati per la bitmap: %d\n", num_bits);
     printf("Numero di livelli: %d\n", number_levels);
     printf("Dimensione del minimum bucket: %d\n", min_bucket_size);
-    BitMap_init(&alloc->bitmap, num_bits, bitmap_buf,bitmap_buf_size);  //crea bitmap associata al buddy allocator "alloc"
+    BitMap_init(&alloc->bitmap, num_bits, bitmap_buf,bitmap_buf_size); 
     printf("\n<-------------------------------Bitmap appena allocata-------------------------------->\n");
     Bitmap_print(&alloc->bitmap,alloc_buf_size); 
     printf("\n<------------------------------------------------------------------------------------->\n");
     return 1;
 };
 
-
-//allocates memory
 void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
     if (size==0){
       printf("NON POSSO ALLOCARE 0 BYTES!");
       return NULL;
     }
     printf("\nTENTO DI ALLOCARE %d BYTES + %ld BYTES DEDICATI ALL'INDICE (TOT. %ld) . . .\n", size, sizeof(int), size+sizeof(int));
-    size += sizeof(int); //sizeof(int) byte usati per l'indice della bitmap
-    //controllo sulla dimensione
+    size += sizeof(int);
     if(size>alloc_size){
-      used_mmap(size);
+      init_mmap(size);
       return NULL;
     }
     
@@ -163,7 +150,7 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
     int start_size;
 
     
-    if (size>(alloc->buffer_size)/2){  //se la dimensione richiesta supera la metà della memoria totale, allora sarà il primo livello
+    if (size>(alloc->buffer_size)/2){ 
       level_new_block=0;
       start_size = alloc->buffer_size; 
     } 
@@ -171,16 +158,16 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
       level_new_block=1;
       start_size = (alloc->buffer_size)/2; 
     }
-    else{    //determiniamo il livello della pagina partendo dal livello più basso
+    else{   
       level_new_block = alloc->number_levels;
       start_size = alloc->min_bucket_size;
       for (int i = 0; i<=level_new_block; i++){
-        if (start_size >= size){  //se la dimensione della memoria richiesta è minore del blocco più piccolo:
+        if (start_size >= size){  
           break;
         }
-        else{ //altrimenti saliamo di livello
-          start_size = start_size*2;  //al livello successivo avremo il doppio del bucket precedente
-          level_new_block = level_new_block - 1; //saliamo di livello
+        else{ 
+          start_size *=2;  
+          level_new_block--; 
         }
       }
     }
@@ -189,37 +176,34 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
     
     printf("\nLIVELLO BLOCCO SCELTO: %d", level_new_block);
 
-    //troviamo un blocco libero nel livello scelto
-    int freeidx=-1;  //free rimarrà -1 se non troviamo nessun blocco libero, altrimenti sarà l'indice del nostro blocco libero
+    int freeidx=-1; 
     int j;
-    if ( level_new_block == 0){ //se il livello è il primo
-      if (!BitMap_bit(&alloc->bitmap, firstIdx(level_new_block))){ //se il blocco è libero
-        freeidx = 0;  //l'indice del blocco da allocare sarà 0
+    if ( level_new_block == 0){
+      if (!BitMap_bit(&alloc->bitmap, firstIdx(level_new_block))){
+        freeidx = 0;
       }
     }
-    else{ //altrimenti eseguiamo una ricerca nel livello
+    else{ 
       for(j = firstIdx(level_new_block); j < firstIdx(level_new_block+1); j++){
-        if (!BitMap_bit(&alloc->bitmap, j)){ //se troviamo un blocco libero
+        if (!BitMap_bit(&alloc->bitmap, j)){
           freeidx=j;
           printf("\t\t\tINDICE DEL BUDDY LIBERO: %d", freeidx);
           break;
         }
-      }  //se dopo il ciclo for non avremo ottenuto nessun blocco libero freeidx rimarrà -1 e ritorneremo NULL
+      }  
     }
 
     
     if(freeidx==-1){  
-      printf("\nNon ci sono blocchi liberi. MEMORY FAULT. \n");
+      printf("\nNon ci sono blocchi liberi quindi abbiamo MEMORY_FAULT. \n");
       return NULL;
     }
 
-    //settiamo a 1 il valore del blocco di indice freeidx, dei suoi antenati e dei suoi discendenti
     Set_status_parents(&alloc->bitmap, freeidx, 1);
     Set_status_children(&alloc->bitmap, freeidx, 1);
-    //restituiamo l'indirizzo e l'offset
     int number_bits=count_bits(alloc_size,&alloc->bitmap);
     char *indirizzo = alloc->buffer + startIdx(freeidx) * start_size;
-    ((int *)indirizzo)[0]=freeidx; //insieme all'indirizzo passiamo l'indice trovato, che ci sarà utile per eseguire la free
+    ((int *)indirizzo)[0]=freeidx; 
     printf("\nAllocato un nuovo blocco di dimensione %d al livello %d utilizzando un blocco di dimensioni %d.\nIndice %d, puntatore \033[34m%p\033[0m\n", size, level_new_block, start_size, freeidx, indirizzo+sizeof(int));
     printf("Albero BITMAP dopo l'allocazione:\n");
     printf("Numero di bit utilizzati per la rappresentazione dell'albero:%d\n",number_bits);
@@ -230,39 +214,33 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
     return (void *)(indirizzo + sizeof(int));
 };
 
-//releases allocated memory
 void BuddyAllocator_free(BuddyAllocator *alloc, void *mem,int alloc_size){
   
   if (mem==NULL){
     printf("Non posso liberare un blocco ancora non allocato!\n");
     return;
   }
-  
-  
+   
   printf("\nLibero il blocco puntato da \033[34m%p\033[0m . . .\n", mem);
 
-  // we retrieve the buddy from the system
   int *p = (int *)mem;
   int idx_to_free = p[-1];
 
   printf("Indice da liberare %d\n", idx_to_free);
-  //check deve essere un buddy corretto, calcolo la dim di un buddy a quel livello
   int dim_lvl = alloc->min_bucket_size * (1 << (alloc->number_levels - levelIdx(idx_to_free)));
   char *p_to_free = alloc->buffer + startIdx(idx_to_free) * dim_lvl;
-  assert("Puntatore non allineato" && (int *)p_to_free == &p[-1]); //se la dimensione del buddy non è quella che dovrebbe essere, abbiamo un errore
-  //bisogna evitare double free
+  assert("Puntatore non allineato" && (int *)p_to_free == &p[-1]); 
   assert("Double free" && BitMap_bit(&alloc->bitmap, idx_to_free));
 
-  //dopo aver liberato un blocco dobbiamo settare a 0 tutti i suoi discendendi
   Set_status_children(&alloc->bitmap, idx_to_free, 0);
-  merge(&alloc->bitmap, idx_to_free); //e se ha buddy libero eseguiamo anche il merge
+  merge(&alloc->bitmap, idx_to_free); 
   
   printf("Bitmap dopo la free:");
   Bitmap_print(&alloc->bitmap,alloc_size);
   printf("============================================================================MEMORIA LIBERATA=============================================================================\n");
 }
 
-//setta il bit degli antenati
+
 void Set_status_parents(BitMap *bit_map, int bit_num, int status){
   BitMap_setBit(bit_map, bit_num, status);
   if (bit_num != 0){
@@ -270,26 +248,24 @@ void Set_status_parents(BitMap *bit_map, int bit_num, int status){
   }
 }
 
-//setta il bit dei discendenti
 void Set_status_children(BitMap *bit_map, int bit_num, int status){
-  if (bit_num < bit_map->num_bits){ //questo controllo viene fatto per non andare oltre al numero di livelli definito
+  if (bit_num < bit_map->num_bits){ 
     BitMap_setBit(bit_map, bit_num, status);
-    Set_status_children(bit_map, bit_num * 2 + 1, status);  //figlio sx
-    Set_status_children(bit_map, bit_num * 2 + 2, status);  //figlio dx
+    Set_status_children(bit_map, bit_num * 2 + 1, status);  
+    Set_status_children(bit_map, bit_num * 2 + 2, status); 
   }
 }
 
-//funzione ricorsiva unisce i buddy fino al livello più alto possibile
 void merge(BitMap *bitmap, int idx){
-  assert("Non puoi fare il merge su un bit libero" && !BitMap_bit(bitmap, idx)); //deve essere libero
-  if (idx == 0) return; //siamo alla root
+  assert("Non puoi fare il merge su un bit libero" && !BitMap_bit(bitmap, idx));
+  if (idx == 0) return; 
   int idx_buddy = buddyIdx(idx);
-  if (!BitMap_bit(bitmap, idx_buddy)){  //se il buddy è libero
+  if (!BitMap_bit(bitmap, idx_buddy)){ 
     printf("Il buddy di %d, ovvero %d, è libero: MERGE\n", idx, idx_buddy);
     printf("Eseguo il merge dei buddy %d e %d al livello %d . . .\n", idx, idx_buddy, levelIdx(idx));
     int parent_idx = parentIdx(idx);
-    BitMap_setBit(bitmap, parent_idx, 0); //Vera operazione di merge, set del parent a 0
-    merge(bitmap, parent_idx); //saliamo di livello
+    BitMap_setBit(bitmap, parent_idx, 0); 
+    merge(bitmap, parent_idx);
   }
   else{ 
     printf("Il buddy di %d, ovvero %d, NON è libero: NO MERGE\n", idx, idx_buddy);
