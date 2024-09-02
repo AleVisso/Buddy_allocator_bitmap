@@ -4,6 +4,7 @@
 #include "bit_map.h"
 
 #define Level_SuperMax 8
+#define PAGE_SIZE 1024
 
 typedef struct  {
   BitMap bitmap;

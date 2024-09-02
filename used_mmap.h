@@ -7,6 +7,6 @@
 #pragma once
 
 //int free_mmap(void* ptr,int memoria);
-void free_mmap(void* ptr,int memoria);
+void free_mmap(void** ptr,int memoria);
 //int init_mmap(int memoria);
-void init_mmap(int memoria);
+void init_mmap(void** ptr,int memoria);

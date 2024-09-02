@@ -3,6 +3,7 @@
 #include <math.h>
 #include "buddy_allocator.h"
 
+
 int levelIdx(size_t idx){
     return (int)floor(log2(idx+1));
 };
@@ -93,7 +94,7 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
                          char* bitmap_buf, 
                          int bitmap_buf_size,
                          int min_bucket_size) {
-    if (min_bucket_size < 8) {
+    if (min_bucket_size < 8000) {
         printf("Minimum bucket troppo piccolo\n");
         return 0;
     }
@@ -138,8 +139,10 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
     }
     printf("\nTENTO DI ALLOCARE %d BYTES + %ld BYTES DEDICATI ALL'INDICE (TOT. %ld) . . .\n", size, sizeof(int), size+sizeof(int));
     size += sizeof(int);
-    if(size>alloc_size){
-      init_mmap(size);
+    if(size>PAGE_SIZE){
+      size-=sizeof(int);
+      printf("DIMENSIONE DELLA MEMORIA RICHIESTA SUPERIORE ALLA PAGE_SIZE\n");
+      printf("UTILIZZIAMO MMAP PER ALLOCARE: %d\n", size);
       return NULL;
     }
     

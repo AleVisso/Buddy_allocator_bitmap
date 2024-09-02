@@ -36,7 +36,7 @@ int BitMap_bit(const BitMap* bit_map, int bit_number){
 }
 
 int BitMap_getBytesAfAlloc(int alloc_size){
-  int count_bits=1;
+  int count_bits=0;
   while(alloc_size>0){
     alloc_size>>=1;
     count_bits++;
