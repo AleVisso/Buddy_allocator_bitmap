@@ -99,7 +99,7 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
     }
 
     if(number_levels>Level_SuperMax){
-        printf("NUMERO DI LIVELLI MAGGIORE DI 16, INIZIALIZZAZIONE BUDDY ALLOCATOR TERMINATA");
+        printf("NUMERO DI LIVELLI MAGGIORE DI 8, INIZIALIZZAZIONE BUDDY ALLOCATOR TERMINATA");
         return 0;
     }
     
@@ -122,6 +122,8 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
     printf("Bit usati per la bitmap: %d\n", num_bits);
     printf("Numero di livelli: %d\n", number_levels);
     printf("Dimensione del minimum bucket: %d\n", min_bucket_size);
+    printf("zona colorata di \033[32mverde\033[0m: \033[32mlibera\033[0m\t");
+    printf("\tzona colorata di \033[31mrossa\033[0m: \033[31moccupata\033[0m\n"); 
     BitMap_init(&alloc->bitmap, num_bits, bitmap_buf,bitmap_buf_size); 
     printf("\n<-------------------------------Bitmap appena allocata-------------------------------->\n");
     Bitmap_print(&alloc->bitmap,alloc_buf_size); 

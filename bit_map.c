@@ -19,7 +19,7 @@ void BitMap_setBit(BitMap* bit_map, int bit_number, int status){
   // get byte
   int byte_number=bit_number>>3; //spostarsi a destra di 2^3 per cercare il byte in cui si trova l'apposito bit
   assert(byte_number<bit_map->buffer_size);
-  int bit_in_byte=byte_number&0x07;
+  int bit_in_byte=bit_number&0x07;
   if (status) {
     bit_map->buffer[byte_number] |= (1<<bit_in_byte);
   } else {
@@ -31,7 +31,7 @@ void BitMap_setBit(BitMap* bit_map, int bit_number, int status){
 int BitMap_bit(const BitMap* bit_map, int bit_number){
   int byte_number=bit_number>>3; 
   assert(byte_number<bit_map->buffer_size);
-  int bit_in_byte=byte_number&0x07;
+  int bit_in_byte=bit_number&0x07;
   return (bit_map->buffer[byte_number] & (1<<bit_in_byte))!=0;
 }
 
