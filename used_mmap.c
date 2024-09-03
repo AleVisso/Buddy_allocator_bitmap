@@ -18,6 +18,11 @@ return ;
 
 void init_mmap(void **ptr,int memoria) {
     // Usare mmap per allocare memoria
+    if(memoria==0){
+        printf("Non è possibile mappare 0 byte! Non possiamo usare mmap\n");
+        printf("===============================================================================================================================================================================\n");
+        return;
+        }
     printf("==========================================================================INIZIO MAPPING MEMORIA====================================================================================\n");
     *ptr = mmap(NULL, memoria, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     

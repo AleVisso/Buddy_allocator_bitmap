@@ -134,7 +134,7 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
 
 void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size,int alloc_size) {
     if (size==0){
-      printf("NON POSSO ALLOCARE 0 BYTES!");
+      printf("NON POSSO ALLOCARE 0 BYTES! NON POSSIAMO USARE IL BUDDY_ALLOCATOR\n");
       return NULL;
     }
     printf("\nTENTO DI ALLOCARE %d BYTES + %ld BYTES DEDICATI ALL'INDICE (TOT. %ld) . . .\n", size, sizeof(int), size+sizeof(int));

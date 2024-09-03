@@ -29,6 +29,10 @@ int main(int argc, char** argv) {
   if(p8==NULL){
     init_mmap(&p8,1200000);
   }
+  void* p9=BuddyAllocator_malloc(&alloc,0,buffer_size);
+  if(p9==NULL){
+     init_mmap(&p9,0);
+  }
   void* p4=BuddyAllocator_malloc(&alloc,58,buffer_size);
   void* p5=BuddyAllocator_malloc(&alloc,10,buffer_size);
   void* p6=BuddyAllocator_malloc(&alloc,450,buffer_size);
