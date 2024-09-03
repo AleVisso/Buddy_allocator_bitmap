@@ -239,7 +239,10 @@ void BuddyAllocator_free(BuddyAllocator *alloc, void *mem,int alloc_size){
 
   Set_status_children(&alloc->bitmap, idx_to_free, 0);
   merge(&alloc->bitmap, idx_to_free); 
-  
+  int number_bits=count_bits(alloc_size,&alloc->bitmap);
+  printf("\nNumero di bit utilizzati per la rappresentazione dell'albero:%d\n",number_bits);
+   int num_bytes=BitMap_getBytes(number_bits);
+  printf("\nNumero di byte utilizzati per la rappresentazione: %d    Numero di byte a disposizione dopo la bitmap:%d\n",num_bytes,alloc->bitmap.buffer_size-num_bytes);
   printf("Bitmap dopo la free:");
   Bitmap_print(&alloc->bitmap,alloc_size);
   printf("============================================================================MEMORIA LIBERATA=============================================================================\n");
