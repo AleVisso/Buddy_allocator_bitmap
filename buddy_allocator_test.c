@@ -1,9 +1,9 @@
 #include "buddy_allocator.h"
 #include <stdio.h>
 
-#define BUFFER_SIZE 1024*1024
+#define BUFFER_SIZE 1024
 #define BUDDY_LEVELS 7
-#define MEMORY_SIZE 1024
+#define MEMORY_SIZE 1024*1024
 #define MIN_BUCKET_SIZE (BUFFER_SIZE>>(BUDDY_LEVELS))
 char memory[MEMORY_SIZE];
 BuddyAllocator alloc;
