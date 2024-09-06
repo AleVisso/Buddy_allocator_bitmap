@@ -94,7 +94,7 @@ int BuddyAllocator_init(BuddyAllocator* alloc,
                          char* bitmap_buf, 
                          int bitmap_buf_size,
                          int min_bucket_size) {
-    if (min_bucket_size < 8000) {
+    if (min_bucket_size < 7) {
         printf("Minimum bucket troppo piccolo\n");
         return 0;
     }
